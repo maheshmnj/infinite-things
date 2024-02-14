@@ -1,46 +1,30 @@
 // GameBoard.tsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import Element from "../Element";
+import DragDropContainer from "../DragDropContainer";
+
+interface ElementData {
+  id: string;
+  x: number;
+  y: number;
+}
 
 const GameBoard: React.FC = () => {
-  const [elements, setElements] = useState<{ id: string; x: number; y: number }[]>([]);
+  const [elements, setElements] = useState<ElementData[]>([]);
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const element = e.dataTransfer.getData('element');
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    setElements((prevElements) => [...prevElements, { id: element, x, y }]);
-  };
-
-  const handleDrag = (e: React.DragEvent, id: string) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    setElements((prevElements) =>
-      prevElements.map((el) => (el.id === id ? { ...el, x, y } : el))
-    );
+  const handleDrop = (id: string, x: number, y: number) => {
+    setElements((prevElements) => [...prevElements, { id, x, y }]);
   };
 
   return (
-    <div className="game-board" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
-      <h2>Game Board</h2>
-      <div>
+    <DragDropContainer onDrop={handleDrop}>
+      <div className="game-board flex-grow relative">
+        <h2 className="text-xl font-bold mb-4">Game Board</h2>
         {elements.map((element) => (
-          <div
-            key={element.id}
-            className="board-element"
-            style={{ left: element.x, top: element.y }}
-            draggable
-            onDrag={(e) => handleDrag(e, element.id)}
-          >
-            {element.id}
-          </div>
+          <Element key={element.id} id={element.id} onDragStart={() => {}} />
         ))}
       </div>
-    </div>
+    </DragDropContainer>
   );
 };
 
