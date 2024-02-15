@@ -1,41 +1,28 @@
 // Element.tsx
 import React from "react";
-
+import { ElementData } from "../Types";
 interface ElementProps {
-  id: string;
-  onDragStart: (e: React.DragEvent, id: string) => void;
+  element: ElementData;
+  onDrag: (e: React.DragEvent<HTMLDivElement>) => void;
 }
 
-const getRandomColor = () => {
-  const letters = "0123456789ABCDEF";
-  let color = "#";
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
-
-const generateRandomPalette = () => {
-  const color1 = getRandomColor();
-  const color2 = getRandomColor();
-  return [color1, color2];
-};
-
-const Element: React.FC<ElementProps> = ({ id, onDragStart }) => {
-  const [color1, color2] = generateRandomPalette();
-
+function Element({ onDrag, element }: ElementProps) {
   return (
     <div
-      className={`element p-4 min-w-12 text-white text-center font-bold rounded-2xl shadow-lg cursor-pointer`}
+      className={`element p-4 min-w-4 text-white text-center font-bold rounded-2xl shadow-lg cursor-pointer`}
+      onDrag={onDrag}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("string", JSON.stringify(element));
+      }}
       style={{
-        background: `linear-gradient(to bottom right, ${color1}, ${color2})`,
+        background: `${element.color}`,
+        transform: `translate(${element.dx}px, ${element.dy}px)`,
       }}
       draggable
-      onDragStart={(e) => onDragStart(e, id)}
     >
-      {id}
+      {element.id}
     </div>
   );
-};
+}
 
 export default Element;
