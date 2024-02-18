@@ -4,103 +4,76 @@ import { ElementData } from "../../Types";
 
 interface GameBoardProps {
   draggedElement: ElementData | null;
+  updateDraggedElement: (element: ElementData | null) => void;
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ draggedElement }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ draggedElement, updateDraggedElement }) => {
   const [elements, setElements] = useState<ElementData[]>([
     { id: "Water", dx: 0, dy: 0, color: "#3498db" },
     { id: "Fire", dx: 0, dy: 0, color: "#e74c3c" },
     { id: "Wind", dx: 0, dy: 0, color: "#2ecc71" },
   ]);
 
-  const [draggingElement, setDraggingElement] = useState<ElementData | null>(null);
-
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.currentTarget.style.border = "none";
+    // const isExternalDrop = !localDragElement;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-    if (draggedElement) {
-      // Check if the dropped element is from the sidebar or internal drag
-      const isExternalDrop = !draggingElement;  // Corrected this line
+    // if (isExternalDrop) {
+    //   console.log("external drop", draggedElement!.id);
+    //   const newElement = { ...draggedElement!, dx: x, dy: y };
+    //   setElements((prevElements) => [...prevElements, newElement]);
+    // } else {
+    const inner = e.currentTarget.children[1] as HTMLElement;
+    const i = elements.findIndex(el => el.id === draggedElement!.id);
+    const domElement = inner.children[i] as HTMLElement;
 
-      if (isExternalDrop) {
-        // External drop: add the dragged element from the sidebar
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+    const updatedElement = {
+      ...draggedElement!,
+      dx: x - inner.offsetLeft - domElement.offsetLeft - domElement.offsetWidth / 2,
+      dy: y - inner.offsetTop - domElement.offsetTop - domElement.offsetHeight / 2,
+    };
+    // setElements((prevElements) => [...prevElements, updatedElement]);
+    setElements((prevElements) => prevElements.map((el) => (el.id === draggedElement!.id ? updatedElement : el)));
+    // }
 
-        const newElement = { ...draggedElement, dx: x, dy: y };
-        setElements((prevElements) => [...prevElements, newElement]);
-      } else {
-        // Internal drop: update the position of the dragged element
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        const updatedElement = { ...draggingElement, dx: x, dy: y };
-
-        setElements((prevElements) =>
-          prevElements.map((el) => (el.id === draggingElement.id ? updatedElement : el))
-        );
-      }
-    }
-
-    // Reset the dragging element in the state
-    setDraggingElement(null);
-  };
-
-
-  const handleDragStart = (
-    e: React.DragEvent<HTMLDivElement>,
-    element: ElementData
-  ) => {
-    console.log("drag start", element.id);
-    // Set the dragged element in the state
-    setDraggingElement(element);
-
-    // Set data to be transferred during the drag
-    e.dataTransfer.setData("elementId", element.id.toString());
+    updateDraggedElement(null);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-
-    // Check if there's a dragging element
-    if (draggingElement) {
-      // Calculate new position based on cursor location
+    if (draggedElement) {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
-      // Update dx and dy in draggingElement (or state)
-      setDraggingElement((prevElement) => {
-        if (prevElement) {
-          return { ...prevElement, dx: x, dy: y };
-        }
-        return prevElement;
-      });
-    }
-  };
-
-
-  const handleDragEnd = () => {
-    // Reset the dragging element in the state
-    setDraggingElement(null);
-  };
-
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.style.border = "2px dashed #333";
-
-    // Get the elementId from dataTransfer only if draggingElement is null
-    if (!draggingElement && draggedElement) {
-      console.log("drag enter", draggedElement?.id);
-      setDraggingElement(draggedElement);
+      updateDraggedElement({ ...draggedElement, dx: x, dy: y });
     }
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.currentTarget.style.border = "none";
+    e.preventDefault();
+    // console.log("drag leave external:", externalDrag);
+    // setExternalDragging(draggedElement != null);
+    // e.currentTarget.style.border = externalDrag ? "2px dashed #333" : "none";
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    // console.log("drag enter external:", externalDrag);
+    updateDraggedElement(draggedElement!);
+    // e.currentTarget.style.border = "2px dashed #333";
+  }
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: ElementData) => {
+    console.log("drag start", element.id);
+    updateDraggedElement(element);
+    e.dataTransfer.setData("elementId", element.id.toString());
+  };
+
+  const handleDragEnd = () => {
+    updateDraggedElement(null);
   };
 
   return (
@@ -108,8 +81,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ draggedElement }) => {
       className="game-board bg-gray-200 relative h-full p-4"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
+      onDragEnter={(e) => handleDragEnter(e)}
+      onDragLeave={(e) => handleDragLeave(e)}
       onDragEnd={handleDragEnd}
     >
       <h2 className="text-xl font-bold mb-4">Game Board</h2>
