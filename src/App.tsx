@@ -16,9 +16,10 @@ function App() {
         <h1 className="text-xl font-bold mb-4">Infinite Things ♾️</h1>
         <SideBar setDraggedElement={setDraggedElement} />
       </div>
-      <div className="md:w-4/5 bg-amber-50 flex-grow">
-        <GameBoard draggedElement={draggedElement} updateDraggedElement={updateDraggedElement} />
-      </div>
+      <GameBoard
+        className="flex-grow md:w-4/5 bg-amber-50 relative p-4"
+        draggedElement={draggedElement} updateDraggedElement={updateDraggedElement}
+      />
     </div>
   );
 }

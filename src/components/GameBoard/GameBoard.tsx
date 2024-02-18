@@ -5,9 +5,10 @@ import { ElementData } from "../../Types";
 interface GameBoardProps {
   draggedElement: ElementData | null;
   updateDraggedElement: (element: ElementData | null) => void;
+  className?: string;
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ draggedElement, updateDraggedElement }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ className, draggedElement, updateDraggedElement }) => {
   const [elements, setElements] = useState<ElementData[]>([
     { id: "Water", dx: 0, dy: 0, color: "#3498db" },
     { id: "Fire", dx: 0, dy: 0, color: "#e74c3c" },
@@ -78,7 +79,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ draggedElement, updateDraggedElem
 
   return (
     <div
-      className="game-board bg-gray-200 relative h-full p-4"
+      className={`${className}`}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragEnter={(e) => handleDragEnter(e)}
@@ -98,7 +99,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ draggedElement, updateDraggedElem
           />
         ))}
       </div>
-    </div>
+    </div >
   );
 };
 
