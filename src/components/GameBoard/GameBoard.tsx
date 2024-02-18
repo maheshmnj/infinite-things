@@ -15,18 +15,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ className, draggedElement, update
     { id: "Wind", dx: 0, dy: 0, color: "#2ecc71" },
   ]);
 
+  const [isLocalDrag, setIsLocalDrag] = useState(false);
+
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    // const isExternalDrop = !localDragElement;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
-    // if (isExternalDrop) {
-    //   console.log("external drop", draggedElement!.id);
-    //   const newElement = { ...draggedElement!, dx: x, dy: y };
-    //   setElements((prevElements) => [...prevElements, newElement]);
-    // } else {
     const inner = e.currentTarget.children[1] as HTMLElement;
     const i = elements.findIndex(el => el.id === draggedElement!.id);
     const domElement = inner.children[i] as HTMLElement;
@@ -38,7 +33,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ className, draggedElement, update
     };
     // setElements((prevElements) => [...prevElements, updatedElement]);
     setElements((prevElements) => prevElements.map((el) => (el.id === draggedElement!.id ? updatedElement : el)));
-    // }
+    if (!isLocalDrag) {
+      e.currentTarget.style.border = "none";
+    }
 
     updateDraggedElement(null);
   };
@@ -55,26 +52,29 @@ const GameBoard: React.FC<GameBoardProps> = ({ className, draggedElement, update
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    // console.log("drag leave external:", externalDrag);
-    // setExternalDragging(draggedElement != null);
-    // e.currentTarget.style.border = externalDrag ? "2px dashed #333" : "none";
+    if (!isLocalDrag) {
+      e.currentTarget.style.border = "none";
+    }
   };
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    // console.log("drag enter external:", externalDrag);
     updateDraggedElement(draggedElement!);
-    // e.currentTarget.style.border = "2px dashed #333";
+    if (!isLocalDrag) {
+      e.currentTarget.style.border = "2px dashed #333";
+    }
   }
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, element: ElementData) => {
-    console.log("drag start", element.id);
+    console.log("drag start local", element.id);
+    setIsLocalDrag(true);
     updateDraggedElement(element);
     e.dataTransfer.setData("elementId", element.id.toString());
   };
 
   const handleDragEnd = () => {
     updateDraggedElement(null);
+    setIsLocalDrag(false);
   };
 
   return (
