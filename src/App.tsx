@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useState } from "react";
-import GameBoard from "../src/components/GameBoard/GameBoard";
+import Playground from "./components/Playground/Playground";
 import SideBar from "../src/components/SideBar/SideBar";
 import { ElementData } from "./Types";
 function App() {
@@ -16,7 +16,7 @@ function App() {
         <h1 className="text-xl font-bold mb-4">Infinite Things ♾️</h1>
         <SideBar setDraggedElement={setDraggedElement} />
       </div>
-      <GameBoard
+      <Playground
         className="flex-grow md:w-4/5 bg-amber-50 relative p-4"
         draggedElement={draggedElement} updateDraggedElement={updateDraggedElement}
       />

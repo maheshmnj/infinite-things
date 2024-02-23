@@ -9,9 +9,9 @@ interface SideBarProps {
 
 const SideBar: React.FC<SideBarProps> = ({ setDraggedElement }) => {
   const elements: ElementData[] = [
-    { id: "Water", dx: 0, dy: 0, color: "#3498db" },
-    { id: "Fire", dx: 0, dy: 0, color: "#e74c3c" },
-    { id: "Wind", dx: 0, dy: 0, color: "#2ecc71" },
+    { id: "Water", value: "Water", dx: 0, dy: 0, color: "#3498db" },
+    { id: "Fire", value: "Fire", dx: 0, dy: 0, color: "#e74c3c" },
+    { id: "Wind", value: "Wind", dx: 0, dy: 0, color: "#2ecc71" },
   ];
 
   const handleDragStart = (
@@ -19,6 +19,8 @@ const SideBar: React.FC<SideBarProps> = ({ setDraggedElement }) => {
     element: ElementData
   ) => {
     console.log("drag start in Sidebar for", element.id);
+    const newElementKey: string = `${element?.id}_${Date.now()}`;
+    element.id = newElementKey;
     setDraggedElement(element);
   };
 
